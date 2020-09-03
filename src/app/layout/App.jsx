@@ -1,24 +1,16 @@
-import React from 'react';
+import React, {useState} from 'react';
+import EventDashboard from '../../features/events/eventDashboard/EventDashboard';
+import NavBar from '../../features/nav/NavBar';
+import { Container } from 'semantic-ui-react';
 
-function App() {
+export default function App() {
+  const [formOpen, setFormOpen] = useState(false);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <> {/*Fragments or divs are not needed here*/}
+      <NavBar setFormOpen={setFormOpen}/>
+      <Container className='main'>
+        <EventDashboard formOpen={formOpen} setFormOpen={setFormOpen}/>
+      </Container>
+    </>
   );
 }
-
-export default App;
