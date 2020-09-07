@@ -2,7 +2,7 @@
 import React from "react";
 import EventListItem from "./EventListItem";
 
-export default function EventList({ events, selectEvent, deleteEvent }) {
+export default function EventList({ events }) {
   /* props is not needed, {events} can be used instead */
   return (
     <>
@@ -10,8 +10,6 @@ export default function EventList({ events, selectEvent, deleteEvent }) {
         <EventListItem
           event={event}
           key={event.id}
-          selectEvent={selectEvent}
-          deleteEvent={deleteEvent}
         /> /* in our sampleData each event has an ID */
       ))}
     </>
