@@ -1,12 +1,10 @@
-// eslint-disable-next-line
 import React from "react";
 import { Segment, Item, Icon, List, Button } from "semantic-ui-react";
 import EventListAttendee from "./EventListAttendee";
+import { Link } from 'react-router-dom';
 
 export default function EventListItem({ event, selectEvent, deleteEvent}) {
-  {
-    /* due to {event} we have access to each property in an event */
-  }
+
   return (
     <Segment.Group>
       <Segment>
@@ -45,7 +43,7 @@ export default function EventListItem({ event, selectEvent, deleteEvent}) {
           content='Delete'
         />
         <Button
-          onClick={() => selectEvent(event)}
+          as={Link} to={`/events/${event.id}`} //semantic ui will work as a link, the `` will allow us template literals with javascript
           color='teal'
           floated='right'
           content='View'
