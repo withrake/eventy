@@ -8,13 +8,13 @@ import EventDetailedPage from "../../features/events/eventDetailed/EventDetailed
 import EventForm from "../../features/events/eventForm/EventForm";
 import HomePage from "../../features/home/HomePage";
 import Sandbox from '../../features/sandbox/Sandbox';
+import ModalManager from '../common/modals/ModalManager';
 
 export default function App() {
   const {key} = useLocation();
   return (
     <>
-      {" "}
-      {/*Fragments or divs are not needed here*/}
+      <ModalManager />
       <Route exact path='/' component={HomePage} />
       <Route
         path={"/(.+)"} //anything that has a / and something else we want to render differently
