@@ -9,12 +9,14 @@ import EventForm from "../../features/events/eventForm/EventForm";
 import HomePage from "../../features/home/HomePage";
 import Sandbox from '../../features/sandbox/Sandbox';
 import ModalManager from '../common/modals/ModalManager';
+import {ToastContainer} from 'react-toastify';
 
 export default function App() {
   const {key} = useLocation();
   return (
     <>
       <ModalManager />
+      <ToastContainer pisition='bottom-right' hideProgressBar/>
       <Route exact path='/' component={HomePage} />
       <Route
         path={"/(.+)"} //anything that has a / and something else we want to render differently
