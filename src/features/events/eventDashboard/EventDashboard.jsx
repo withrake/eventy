@@ -1,15 +1,24 @@
 import React from "react";
 import { Grid } from "semantic-ui-react";
 import EventList from "./EventList";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 // import LoadingComponent from '../../../app/layout/LoadingComponent';   //when we load, we show the loading indicator. once loading is done, we return the rest below. however, we need to remove the welcome to eventy text in the index.html, to avoid a flickering
 import EventListItemPlaceholder from './EventListItemPlaceholder'; // shimmering loading effect while loading
 import EventFilters from './EventFilters';
+import { listenToEventsFromFirestore } from '../../../app/firestore/firestoreService';
+import { listenToEvents } from '../eventActions';
+import useFirestoreCollection from '../../../app/hooks/useFirestoreCollection';
 
 export default function EventDashboard() {
+  const dispatch = useDispatch();
   const { events } = useSelector((state) => state.event);
   const {loading} = useSelector(state => state.async);
 
+  useFirestoreCollection({
+    query: () => listenToEventsFromFirestore(),
+    data: events => dispatch(listenToEvents(events)),
+    deps: [dispatch]
+  }) // since we used curly brackets for calling these objects, their listing order is unimportant
 
   return (
     <Grid>
