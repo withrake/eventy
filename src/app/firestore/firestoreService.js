@@ -54,3 +54,12 @@ export function cancelEventToggle(event) {
         isCancelled: !event.isCancelled
     }) // we add a new flag to an event
 }
+
+export function setUserProfileData(user) {
+    return db.collection('users').doc(user.uid).set({
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL || null, //takes the photo from facebook etc.
+        createdAt: firebase.firestore.FieldValue.serverTimestamp() //keeps our time consistent, instead of local
+    })
+}

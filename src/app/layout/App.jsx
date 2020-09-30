@@ -7,22 +7,28 @@ import { Route, useLocation } from "react-router-dom";
 import EventDetailedPage from "../../features/events/eventDetailed/EventDetailedPage";
 import EventForm from "../../features/events/eventForm/EventForm";
 import HomePage from "../../features/home/HomePage";
-import Sandbox from '../../features/sandbox/Sandbox';
-import ModalManager from '../common/modals/ModalManager';
-import {ToastContainer} from 'react-toastify';
-import ErrorComponent from '../common/errors/ErrorComponent';
+import Sandbox from "../../features/sandbox/Sandbox";
+import ModalManager from "../common/modals/ModalManager";
+import { ToastContainer } from "react-toastify";
+import ErrorComponent from "../common/errors/ErrorComponent";
+import AccountPage from "../../features/auth/AccountPage";
+import { useSelector } from "react-redux";
+import LoadingComponent from './LoadingComponent';
 
 export default function App() {
-  const {key} = useLocation();
+  const { key } = useLocation();
+  const { initialized } = useSelector((state) => state.async);
+
+if (!initialized) return <LoadingComponent content='Loading app...' />
+
   return (
     <>
       <ModalManager />
-      <ToastContainer pisition='bottom-right' hideProgressBar/>
+      <ToastContainer pisition='bottom-right' hideProgressBar />
       <Route exact path='/' component={HomePage} />
       <Route
         path={"/(.+)"} //anything that has a / and something else we want to render differently
         render={() => (
-          
           <>
             <NavBar />
             <Container className='main'>
@@ -30,8 +36,13 @@ export default function App() {
               <Route exact path='/sandbox' component={Sandbox} />
               <Route path='/events/:id' component={EventDetailedPage} />{" "}
               {/* /:id leaves a place for the respective ID */}
-              <Route path={['/createEvent', '/manage/:id']} component={EventForm} key={key} />
-              <Route path='/error' component={ErrorComponent}/>
+              <Route
+                path={["/createEvent", "/manage/:id"]}
+                component={EventForm}
+                key={key}
+              />
+              <Route path='/account' component={AccountPage} />
+              <Route path='/error' component={ErrorComponent} />
             </Container>
           </>
         )}
