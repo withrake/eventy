@@ -16,7 +16,7 @@ export default function authReducer(state = initialState, { type, payload }) {
           photoURL: payload.photoURL,
           uid: payload.uid,
           displayName: payload.displayName,
-          provoderId: payload.providerData[0].providerId,
+          providerId: payload.providerData[0].providerId
         },
       };
     case SIGN_OUT_USER:

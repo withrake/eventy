@@ -40,14 +40,7 @@ export default function RegisterForm() {
               placeholder='Password'
               type='password'
             />
-            {errors.auth && (
-              <Label
-                basic
-                color='red'
-                style={{ marginBottom: 10 }}
-                content={errors.auth}
-              />
-            )}
+            {errors.auth && <Label basic color='red' style={{marginBottom: 10}} content={errors.auth} />}
             <Button
               loading={isSubmitting}
               disabled={!isValid || !dirty || isSubmitting}
