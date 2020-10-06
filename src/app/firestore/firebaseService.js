@@ -49,3 +49,16 @@ export function updateUserPassword(creds) {
   const user = firebase.auth().currentUser; //this is a synchronous action giving us access to the current user
   return user.updatePassword(creds.newPassword1); //this returns a promise to return our loading indicator for instance
 }
+
+export function uploadToFirebaseStorage(file, filename) {
+  const user = firebase.auth().currentUser;
+  const storageRef = firebase.storage().ref();
+  return storageRef.child(`${user.uid}/user_images/${filename}`).put(file);
+}
+
+export function deleteFromFirebaseStorage(filename) {
+  const userUid = firebase.auth().currentUser.uid; //we get the current user id
+  const storageRef = firebase.storage().ref(); //we get a reference to the storage
+  const photoRef = storageRef.child(`${userUid}/user_images/${filename}`)  // reference to the individual image itself
+  return photoRef.delete(); //this deletes the image from the storage
+}
