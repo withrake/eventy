@@ -1,4 +1,3 @@
-import cuid from "cuid";
 import firebase from "../config/firebase";
 
 const db = firebase.firestore();
@@ -21,8 +20,23 @@ export function dataFromSnapshot(snapshot) {
   };
 }
 
-export function listenToEventsFromFirestore() {
-  return db.collection("events").orderBy("date");
+export function listenToEventsFromFirestore(predicate) {
+  const user = firebase.auth().currentUser; //this is a reference to the current user
+  let eventsRef = db.collection("events").orderBy("date");
+  switch (
+    predicate.get("filter") //this allows us to filter
+  ) {
+    case "isGoing":
+      return eventsRef
+        .where("attendeeIds", "array-contains", user.uid) //this is how we querry in firebase. we remove what we're not interested in
+        .where("date", ">=", predicate.get("startDate")); // >= means greater than or equal to
+    case "isHost":
+      return eventsRef
+        .where("hostUid", "==", user.uid) //we do not want ===
+        .where("date", ">=", predicate.get("startDate"));
+    default:
+      return eventsRef.where("date", ">=", predicate.get("startDate"));
+  }
 }
 
 export function listenToEventFromFirestore(eventId) {
@@ -31,15 +45,18 @@ export function listenToEventFromFirestore(eventId) {
 }
 
 export function addEventToFirestore(event) {
+  const user = firebase.auth().currentUser; //to have a reference to the user
   return db.collection("events").add({
     ...event,
-    hostedBy: "Diana",
-    hostPhotoURL: "https://randomuser.me/api/portraits/women/20.jpg",
+    hostUid: user.uid,
+    hostedBy: user.displayName,
+    hostPhotoURL: user.photoURL || null, //uses the static image if no image available
     attendees: firebase.firestore.FieldValue.arrayUnion({
-      id: cuid(),
-      displayName: "Diana",
-      photoURL: "https://randomuser.me/api/portraits/women/20.jpg",
-    }),
+      id: user.uid,
+      displayName: user.displayName,
+      photoURL: user.photoURL || null,
+    }), //we cannot querry objects, so we need an additional array
+    attendeeIds: firebase.firestore.FieldValue.arrayUnion(user.uid), //so we querry string-based arrays
   });
 }
 
@@ -137,4 +154,55 @@ export function deletePhotoFromCollection(photoId) {
     .collection("photos")
     .doc(photoId)
     .delete();
+}
+
+export function addUserAttendance(event) {
+  const user = firebase.auth().currentUser;
+  return db
+    .collection("events")
+    .doc(event.id)
+    .update({
+      attendees: firebase.firestore.FieldValue.arrayUnion({
+        id: user.uid,
+        displayName: user.displayName,
+        photoURL: user.photoURL || null,
+      }), //we cannot querry objects, so we need an additional array
+      attendeeIds: firebase.firestore.FieldValue.arrayUnion(user.uid), //so we querry string-based arrays
+    });
+}
+
+export async function cancelUserAttendance(event) {
+  const user = firebase.auth().currentUser;
+  try {
+    const eventDoc = await db.collection("events").doc(event.id).get();
+    return db
+      .collection("events")
+      .doc(event.id)
+      .update({
+        attendeeIds: firebase.firestore.FieldValue.arrayRemove(user.uid), //this is used like an object, hence comma
+        attendees: eventDoc
+          .data()
+          .attendees.filter((attendee) => attendee.id !== user.uid), //we treat this as a normal javascript array, and we set a new array for our attendees, leaving them in place after our method (not ideal, but the way we use firebase)
+      });
+  } catch (error) {
+    throw error;
+  }
+}
+
+export function getUserEventsQuery(activeTab, userUid) {
+  let eventsRef = db.collection("events");
+  const today = new Date();
+  switch (activeTab) {
+    case 1: //past events
+      return eventsRef
+        .where("attendeeIds", "array-contains", userUid)
+        .where("date", "<=", today)
+        .orderBy("date", "desc"); //most recent event first
+    case 2: // hosting
+      return eventsRef.where("hostUid", "==", userUid).orderBy("date");
+    default:
+      return eventsRef
+        .where("attendeeIds", "array-contains", userUid)
+        .orderBy("date"); //ascending order
+  }
 }
