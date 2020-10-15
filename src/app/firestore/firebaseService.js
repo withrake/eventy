@@ -2,6 +2,12 @@ import firebase from "../config/firebase";
 import { setUserProfileData } from './firestoreService';
 import { toast } from 'react-toastify';
 
+export function firebaseObjectToArray(snapshot) {
+  if (snapshot) {
+    return Object.entries(snapshot).map(e => Object.assign({}, e[1], {id: e[0]})) //we create an object of each element in the array. the target is empty, the index 1 contains the properties, then we want to populate the id by specifying a new property called id and set it to position 0, which is the key 
+  }
+}
+
 export function signInWithEmail(creds) {
   return firebase
     .auth()
@@ -61,4 +67,21 @@ export function deleteFromFirebaseStorage(filename) {
   const storageRef = firebase.storage().ref(); //we get a reference to the storage
   const photoRef = storageRef.child(`${userUid}/user_images/${filename}`)  // reference to the individual image itself
   return photoRef.delete(); //this deletes the image from the storage
+}
+
+export function addEventChatComment(eventId, values) {
+  const user = firebase.auth().currentUser;
+  const newComment = {
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+    uid: user.uid,
+    text: values.comment,
+    date: Date.now(),
+    parentId: values.parentId,
+  }
+  return firebase.database().ref(`chat/${eventId}`).push(newComment);
+}
+
+export function getEventChatRef(eventId) {
+  return firebase.database().ref(`chat/${eventId}`).orderByKey() // we choose orderByKey because this has essentially an order (timestamp) to it
 }
