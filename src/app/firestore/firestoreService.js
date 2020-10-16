@@ -206,3 +206,59 @@ export function getUserEventsQuery(activeTab, userUid) {
         .orderBy("date"); //ascending order
   }
 }
+
+export async function followUser(profile) {
+  const user = firebase.auth().currentUser;
+  const batch = db.batch(); // create a batch for all our functions, so they get executed simultaneously
+  try {
+    batch.set(db.collection('following').doc(user.uid).collection('userFollowing').doc(profile.id), { // batch takes reference and then asks what to update (instead of await)
+      displayName: profile.displayName,
+      photoURL: profile.photoURL,
+      uid: profile.id
+    });
+    batch.set(db.collection('following').doc(profile.id).collection('userFollowers').doc(user.uid), {
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      uid: user.uid
+    })
+    batch.update(db.collection('users').doc(user.uid), {
+      followingCount: firebase.firestore.FieldValue.increment(1) //this defines the amount for incrementing
+    })
+    batch.update(db.collection('users').doc(profile.id), {
+      followerCount: firebase.firestore.FieldValue.increment(1) //this defines the amount for incrementing
+    })
+    return await batch.commit(); //now we guarantee that either all work or none does
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function unfollowUser(profile) {
+  const user = firebase.auth().currentUser;
+  const batch = db.batch();
+  try {
+    batch.delete(db.collection('following').doc(user.uid).collection('userFollowing').doc(profile.id)); //we need to delete the following document
+    batch.delete(db.collection('following').doc(profile.id).collection('userFollowers').doc(user.uid)); //we need to delete the following document
+    batch.update(db.collection('users').doc(user.uid), {
+      followingCount: firebase.firestore.FieldValue.increment(-1) //this defines the amount for incrementing
+    })
+    batch.update(db.collection('users').doc(profile.id), {
+      followerCount: firebase.firestore.FieldValue.increment(-1) //this defines the amount for incrementing
+    })
+    return await batch.commit(); //avoids inconsistent data when we have a problem
+  } catch (error) {
+    throw error;
+  }
+}
+
+export function getFollowersCollection(profileId) {
+  return db.collection ('following').doc(profileId).collection('userFollowers')
+}
+export function getFollowingCollection(profileId) {
+  return db.collection ('following').doc(profileId).collection('userFollowing')
+}
+
+export function getFollowingDoc(profileId) {
+  const userUid = firebase.auth().currentUser.uid;
+  return db.collection('following').doc(userUid).collection('userFollowing').doc(profileId).get();
+}
