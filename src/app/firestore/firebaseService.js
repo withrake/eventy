@@ -65,7 +65,7 @@ export function uploadToFirebaseStorage(file, filename) {
 export function deleteFromFirebaseStorage(filename) {
   const userUid = firebase.auth().currentUser.uid; //we get the current user id
   const storageRef = firebase.storage().ref(); //we get a reference to the storage
-  const photoRef = storageRef.child(`${userUid}/user_images/${filename}`)  // reference to the individual image itself
+  const photoRef = storageRef.child(`${userUid}/user_images/${filename}`); // reference to the individual image itself
   return photoRef.delete(); //this deletes the image from the storage
 }
 
@@ -84,4 +84,9 @@ export function addEventChatComment(eventId, values) {
 
 export function getEventChatRef(eventId) {
   return firebase.database().ref(`chat/${eventId}`).orderByKey() // we choose orderByKey because this has essentially an order (timestamp) to it
+}
+
+export function getUserFeedRef() {
+  const user = firebase.auth().currentUser;
+  return firebase.database().ref(`posts/${user.uid}`).orderByKey().limitToLast(5) //we only want the last 5 results
 }

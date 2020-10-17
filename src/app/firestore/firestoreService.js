@@ -203,6 +203,7 @@ export function getUserEventsQuery(activeTab, userUid) {
     default:
       return eventsRef
         .where("attendeeIds", "array-contains", userUid)
+        .where('date', '>=', today)
         .orderBy("date"); //ascending order
   }
 }
@@ -216,16 +217,8 @@ export async function followUser(profile) {
       photoURL: profile.photoURL,
       uid: profile.id
     });
-    batch.set(db.collection('following').doc(profile.id).collection('userFollowers').doc(user.uid), {
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      uid: user.uid
-    })
     batch.update(db.collection('users').doc(user.uid), {
       followingCount: firebase.firestore.FieldValue.increment(1) //this defines the amount for incrementing
-    })
-    batch.update(db.collection('users').doc(profile.id), {
-      followerCount: firebase.firestore.FieldValue.increment(1) //this defines the amount for incrementing
     })
     return await batch.commit(); //now we guarantee that either all work or none does
   } catch (error) {
@@ -238,12 +231,8 @@ export async function unfollowUser(profile) {
   const batch = db.batch();
   try {
     batch.delete(db.collection('following').doc(user.uid).collection('userFollowing').doc(profile.id)); //we need to delete the following document
-    batch.delete(db.collection('following').doc(profile.id).collection('userFollowers').doc(user.uid)); //we need to delete the following document
     batch.update(db.collection('users').doc(user.uid), {
       followingCount: firebase.firestore.FieldValue.increment(-1) //this defines the amount for incrementing
-    })
-    batch.update(db.collection('users').doc(profile.id), {
-      followerCount: firebase.firestore.FieldValue.increment(-1) //this defines the amount for incrementing
     })
     return await batch.commit(); //avoids inconsistent data when we have a problem
   } catch (error) {
