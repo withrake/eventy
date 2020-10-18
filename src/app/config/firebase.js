@@ -5,7 +5,7 @@ import 'firebase/auth';
 import 'firebase/storage';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAvXu5DBgU1MAd38KtTjJvRF8yVjDFTZyg", //this key is needed to access this app
+    apiKey: process.env.REACT_APP_API_KEY, //this key is needed to access this app
     authDomain: "eventy-55e9c.firebaseapp.com",
     databaseURL: "https://eventy-55e9c.firebaseio.com",
     projectId: "eventy-55e9c",

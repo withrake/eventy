@@ -16,8 +16,8 @@ export default function EventDetailedPage({ match }) {
   const { currentUser } = useSelector((state) => state.auth);
   const event = useSelector((state) => state.event.selectedEvent);
   const { loading, error } = useSelector((state) => state.async);
-  const isHost = event?.hostUid === currentUser.uid; //event? so that if there is no value, the boolean is false and so no error. else, we do not know if we have access to the properties when calling this, so careful
-  const isGoing = event?.attendees?.some((a) => a.id === currentUser.uid); //this will tell us if the current user is in the attendees list
+  const isHost = event?.hostUid === currentUser?.uid; //event? so that if there is no value, the boolean is false and so no error. else, we do not know if we have access to the properties when calling this, so careful
+  const isGoing = event?.attendees?.some((a) => a.id === currentUser?.uid); //this will tell us if the current user is in the attendees list
 
   useFirestoreDoc({
     query: () => listenToEventFromFirestore(match.params.id),
